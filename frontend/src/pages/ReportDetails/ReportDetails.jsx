@@ -1,84 +1,69 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
-const Dashboard = () => {
-  const [reports, setReports] = useState([]);
-  const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(false);
-
-  const fetchReports = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch(
-        `https://api.reliefweb.int/v1/reports?appname=disasterapp&limit=10&offset=${(page - 1) * 10}`
-      );
-      const data = await response.json();
-
-      console.log("API Data:", data); // Debugging log
-      setReports((prevReports) => [...prevReports, ...data.data]);
-    } catch (error) {
-      console.error("Error fetching reports:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+const ReportDetails = () => {
+  const { id } = useParams();
+  const [report, setReport] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchReports();
-  }, [page]);
+    const fetchReportDetails = async () => {
+      try {
+        const response = await fetch(
+          `https://api.reliefweb.int/v1/reports/${id}?appname=disasterapp`
+        );
+        const data = await response.json();
+        
+        if (data.data && data.data.length > 0) {
+          setReport(data.data[0]);
+        } else {
+          setReport(null); // Handle empty response
+        }
 
-  const handleScroll = () => {
-    if (
-      window.innerHeight + window.scrollY >= document.body.offsetHeight - 100 &&
-      !loading
-    ) {
-      setPage((prevPage) => prevPage + 1);
-    }
-  };
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching report details:", error);
+        setLoading(false);
+      }
+    };
 
-  useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+    fetchReportDetails();
+  }, [id]);
+
+  if (loading) return <p>Loading report details...</p>;
+  if (!report) return <p>Report not found.</p>;
 
   return (
-    <div className="p-4">
-      {reports.map((report) => (
-        <div key={report.id} className="mb-6 border-b pb-4">
-          <h3 className="text-xl font-bold">{report.fields.title}</h3>
+    <div className="p-6 max-w-3xl mx-auto">
+      <img
+        src={report.fields?.primary_image?.url || "https://via.placeholder.com/800"}
+        alt="Disaster"
+        className="w-full h-64 object-cover rounded mb-4"
+      />
+      <h2 className="text-3xl font-bold">{report.fields?.title || "No Title Available"}</h2>
 
-          {/* IMAGE */}
-          <img
-            src={
-              report.fields?.file?.[0]?.preview?.url ||
-              report.fields?.primary_image?.url ||
-              "https://placehold.co/600x400?text=No+Image"
-            }
-            alt="Disaster"
-            className="w-full max-h-[400px] object-cover rounded mb-4"
-          />
+      <p className="text-gray-500">
+        {report.fields?.date?.created
+          ? new Date(report.fields.date.created).toLocaleString()
+          : "No Date Available"}
+      </p>
 
-          {/* DATE */}
-          <p className="text-gray-600 mb-2">
-            <strong>Date & Time:</strong>{" "}
-            {new Date(report.fields?.date?.created).toLocaleString() || "No Date Available"}
-          </p>
+      <h3 className="text-xl font-semibold mt-4">
+        Country:{" "}
+        {report.fields?.country
+          ? report.fields.country.map((c) => c.name).join(", ")
+          : "Unknown"}
+      </h3>
 
-          {/* READ MORE LINK */}
-          <Link
-            to={`/report/${report.id}`}
-            className="text-blue-500 hover:underline"
-          >
-            Read More
-          </Link>
-        </div>
-      ))}
-
-      {loading && <p>Loading more reports...</p>}
+      <p className="mt-4">
+        {report.fields?.body || "No detailed information available."}
+      </p>
     </div>
   );
 };
 
-export default Dashboard;
+export default ReportDetails;
+
+
 
 
