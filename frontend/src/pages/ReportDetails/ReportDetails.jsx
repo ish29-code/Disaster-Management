@@ -1,72 +1,84 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 
-const ReportDetails = () => {
-  const { id } = useParams();
-  const [report, setReport] = useState(null);
-  const [loading, setLoading] = useState(true);
+const Dashboard = () => {
+  const [reports, setReports] = useState([]);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchReportDetails = async () => {
-      try {
-        const response = await fetch(
-          `https://api.reliefweb.int/v1/reports/${id}?appname=disasterapp`
-        );
-        const data = await response.json();
+  const fetchReports = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `https://api.reliefweb.int/v1/reports?appname=disasterapp&limit=10&offset=${(page - 1) * 10}`
+      );
+      const data = await response.json();
 
-        console.log("Report Details API Response:", data); // Debugging log
-
-        if (data.data.length) {
-          setReport(data.data[0]);
-        }
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching report details:", error);
-        setLoading(false);
-      }
-    };
-
-    fetchReportDetails();
-  }, [id]);
-
-  const formatDateTime = (isoString) => {
-    if (!isoString) return "No Date Available";
-    const date = new Date(isoString);
-    return date.toLocaleString();
+      console.log("API Data:", data); // Debugging log
+      setReports((prevReports) => [...prevReports, ...data.data]);
+    } catch (error) {
+      console.error("Error fetching reports:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  if (loading) return <p>Loading report details...</p>;
-  if (!report) return <p>Report not found.</p>;
+  useEffect(() => {
+    fetchReports();
+  }, [page]);
+
+  const handleScroll = () => {
+    if (
+      window.innerHeight + window.scrollY >= document.body.offsetHeight - 100 &&
+      !loading
+    ) {
+      setPage((prevPage) => prevPage + 1);
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
     <div className="p-4">
-      {/* TITLE */}
-      <h2 className="text-3xl font-bold mb-4">{report.fields?.title || "No Title"}</h2>
+      {reports.map((report) => (
+        <div key={report.id} className="mb-6 border-b pb-4">
+          <h3 className="text-xl font-bold">{report.fields.title}</h3>
 
-      {/* IMAGE */}
-      <img
-        src={
-          report.fields?.file?.[0]?.preview?.url || // Check 'file' field for preview image
-          report.fields?.primary_image?.url || // Check 'primary_image' field
-          "https://placehold.co/600x400?text=No+Image" // Fallback placeholder
-        }
-        alt="Disaster"
-        className="w-full max-h-[800px] md:max-h-[2100px] object-cover rounded mb-4"
-      />
+          {/* IMAGE */}
+          <img
+            src={
+              report.fields?.file?.[0]?.preview?.url ||
+              report.fields?.primary_image?.url ||
+              "https://placehold.co/600x400?text=No+Image"
+            }
+            alt="Disaster"
+            className="w-full max-h-[400px] object-cover rounded mb-4"
+          />
 
-      {/* DATE & TIME */}
-      <p className="text-gray-600 mb-2">
-        <strong>Date & Time:</strong> {formatDateTime(report.fields?.date?.created)}
-      </p>
+          {/* DATE */}
+          <p className="text-gray-600 mb-2">
+            <strong>Date & Time:</strong>{" "}
+            {new Date(report.fields?.date?.created).toLocaleString() || "No Date Available"}
+          </p>
 
-      {/* FULL CONTENT */}
-      <p className="text-lg">
-        {report.fields?.body || "No additional details available."}
-      </p>
+          {/* READ MORE LINK */}
+          <Link
+            to={`/report/${report.id}`}
+            className="text-blue-500 hover:underline"
+          >
+            Read More
+          </Link>
+        </div>
+      ))}
+
+      {loading && <p>Loading more reports...</p>}
     </div>
   );
 };
 
-export default ReportDetails;
+export default Dashboard;
 
 
