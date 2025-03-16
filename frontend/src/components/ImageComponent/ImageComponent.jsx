@@ -9,7 +9,7 @@ const ImageComponent = ({ src, alt }) => {
       alt={alt || "Disaster Report"}
       className="w-full h-48 object-cover rounded"
       onError={(e) => {
-        e.target.onerror = null; // Prevents infinite loop
+        e.target.onerror = null; 
         e.target.src = placeholderImage;
       }}
     />

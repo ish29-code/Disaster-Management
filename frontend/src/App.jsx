@@ -3,10 +3,11 @@ import { useState, useEffect } from "react";
 import "./index.css";
 import LandingPage from "./pages/LandingPage/LandingPage.jsx";
 import Dashboard from "./pages/Dashboard/Dashboard.jsx";
-import ReportDetails from "./pages/ReportDetails/ReportDetails.jsx";
+
 import Navbar from "./components/Navbar/Navbar.jsx";
 import Login from "./pages/Login/Login.jsx";
 import Map from "./pages/Map/Map.jsx";
+import ReportDetails from "./pages/ReportDetails/ReportDetails.jsx";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);

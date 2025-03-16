@@ -20,7 +20,11 @@ const Dashboard = () => {
         return;
       }
 
-      setReports((prevReports) => [...prevReports, ...data.data]);
+      const uniqueReports = [
+        ...new Map(data.data.map((report) => [report.id, report])).values()
+      ];
+
+      setReports((prevReports) => [...prevReports, ...uniqueReports]);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching reports:", error);
@@ -36,7 +40,7 @@ const Dashboard = () => {
   const formatDateTime = (isoString) => {
     if (!isoString) return "No Date Available";
     const date = new Date(isoString);
-    return date.toLocaleString(); // Converts to readable date & time format
+    return date.toLocaleString();
   };
 
   return (
@@ -50,43 +54,38 @@ const Dashboard = () => {
         loader={<p>Loading more reports...</p>}
       >
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {reports.map((report) => (
-            <div key={report.id} className="p-4 border rounded shadow">
-              {/* IMAGE */}
-              <img
-                src={
-                  report.fields?.file?.[0]?.preview?.url ||
-                  "https://via.placeholder.com/400"
-                }
-                alt="Disaster"
-                className="w-full h-48 object-cover rounded"
-              />
+          {reports.map((report, index) => {
+            const imageUrl = report.fields?.file?.preview?.url
 
-              {/* TITLE */}
-              <h3 className="text-xl font-semibold mt-2">
-                {report.fields?.title || "No Title"}
-              </h3>
+            return (
+              <div key={`${report.id}-${index}`} className="p-4 border rounded shadow">
+                <img
+                  src={imageUrl}
+                  alt={report.fields?.title || "Disaster Image"}
+                  className="w-full h-48 object-cover rounded"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                   // Placeholder if image fails
+                  }}
+                />
 
-              {/* DATE & TIME */}
-              <p className="text-gray-600">
-                <strong>Date & Time:</strong>{" "}
-                {formatDateTime(report.fields?.date?.created)}
-              </p>
+                <h3 className="text-xl font-semibold mt-2">
+                  {report.fields?.title || "No Title"}
+                </h3>
 
-              {/* EXCERPT */}
-              <p className="mt-2">
-                {report.fields?.excerpt || "No summary available."}
-              </p>
+                <p className="text-gray-600">
+                  <strong>Date & Time:</strong> {formatDateTime(report.fields?.date?.created)}
+                </p>
 
-              {/* LINK TO REPORT DETAILS */}
-              <Link
-                to={`/report/${report.id}`}
-                className="mt-2 inline-block text-blue-500 hover:underline"
-              >
-                Read more
-              </Link>
-            </div>
-          ))}
+                <Link
+                  to={`/report/${report.id}`}
+                  className="mt-2 inline-block text-blue-500 hover:underline"
+                >
+                  Read more
+                </Link>
+              </div>
+            );
+          })}
         </div>
       </InfiniteScroll>
     </div>
@@ -94,4 +93,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-
