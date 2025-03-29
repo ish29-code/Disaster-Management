@@ -98,44 +98,44 @@ const ReportDetails = () => {
     return date.toLocaleString();
   };
 
-  if (loading) return <p>Loading report details...</p>;
-  if (!report) return <p>Report not found.</p>;
+  if (loading) return <p className="text-center text-gray-600">Loading report details...</p>;
+  if (!report) return <p className="text-center text-red-500">Report not found.</p>;
 
   const imageUrl =
     report.fields?.file?.[0]?.preview?.url || "https://via.placeholder.com/600";
 
   return (
-    <div className="p-4">
-      <h2 className="text-3xl font-bold mb-4">{report.fields?.title || "No Title"}</h2>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-yellow-50 to-white p-6">
+      <div className="bg-white shadow-lg rounded-lg p-6 max-w-3xl w-full">
+        <h2 className="text-4xl font-extrabold text-blue-800 mb-4">
+          {report.fields?.title || "No Title"}
+        </h2>
 
-      <img
-        src={imageUrl}
-        alt="Disaster"
-        className="w-full max-h-[1500px] object-cover rounded mb-4"
-      />
+        <img
+          src={imageUrl}
+          alt="Disaster"
+          className="w-full max-h-[500px] object-cover rounded-lg shadow-md mb-4"
+        />
 
-      <p className="text-gray-600 mb-2">
-        <strong>Date & Time:</strong> {formatDateTime(report.fields?.date?.created)}
-      </p>
+        <p className="text-gray-700 mb-3 text-lg">
+          <strong>Date & Time:</strong> {formatDateTime(report.fields?.date?.created)}
+        </p>
 
-      <p className="text-lg">
-        {report.fields?.body || "No additional details available."}
-      </p>
+        <p className="text-gray-600 text-lg leading-relaxed">
+          {report.fields?.body || "No additional details available."}
+        </p>
 
-      {/* Link to Dashboard with imageUrl passed as state */}
-      <Link
-        to={{
-          pathname: "/dashboard",
-          state: { imageUrl },
-        }}
-        className="mt-4 inline-block text-blue-500 hover:underline"
-      >
-        Back to Dashboard
-      </Link>
+        {/* Back to Dashboard Button */}
+        <Link
+          to="/dashboard"
+          className="mt-6 inline-block bg-yellow-500 text-white px-6 py-3 rounded-lg shadow-md text-lg font-medium 
+          hover:bg-yellow-600 transition duration-300"
+        >
+          Back to Dashboard
+        </Link>
+      </div>
     </div>
   );
 };
 
 export default ReportDetails;
-
-

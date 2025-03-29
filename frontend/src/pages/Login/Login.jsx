@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 const Login = ({ setIsAuthenticated }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
@@ -36,7 +37,7 @@ const Login = ({ setIsAuthenticated }) => {
         alert(isLogin ? "Login Successful" : "Registration Successful");
         if (isLogin) {
           setIsAuthenticated(true);
-          navigate("/"); // ✅ Navigate to Home instead of /map
+          navigate("/"); // ✅ Navigate to Home
         } else {
           setIsLogin(true);
         }
@@ -50,64 +51,71 @@ const Login = ({ setIsAuthenticated }) => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen">
-      <div className="flex gap-4 mb-4">
-        <button
-          className={`px-4 py-2 rounded ${isLogin ? "bg-blue-600 text-white" : "bg-gray-200"}`}
-          onClick={() => setIsLogin(true)}
-        >
-          Login
-        </button>
-        <button
-          className={`px-4 py-2 rounded ${!isLogin ? "bg-blue-600 text-white" : "bg-gray-200"}`}
-          onClick={() => setIsLogin(false)}
-        >
-          Register
-        </button>
-      </div>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 via-yellow-50 to-white p-6">
+      <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-md text-center">
+        {/* Login & Register Toggle */}
+        <div className="flex justify-center mb-6">
+          <button
+            className={`px-4 py-2 text-lg font-medium rounded-l-lg transition duration-300 ${
+              isLogin ? "bg-blue-600 text-white shadow-md" : "bg-gray-200 text-gray-700"
+            }`}
+            onClick={() => setIsLogin(true)}
+          >
+            Login
+          </button>
+          <button
+            className={`px-4 py-2 text-lg font-medium rounded-r-lg transition duration-300 ${
+              !isLogin ? "bg-blue-600 text-white shadow-md" : "bg-gray-200 text-gray-700"
+            }`}
+            onClick={() => setIsLogin(false)}
+          >
+            Register
+          </button>
+        </div>
 
-      <h2 className="text-2xl font-bold">{isLogin ? "Login" : "Register"}</h2>
+        <h2 className="text-3xl font-bold text-blue-800">{isLogin ? "Login" : "Register"}</h2>
 
-      <form onSubmit={handleAuth} className="flex flex-col gap-4 mt-4">
-        {!isLogin && (
+        <form onSubmit={handleAuth} className="flex flex-col gap-4 mt-6">
+          {!isLogin && (
+            <input
+              type="text"
+              placeholder="Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
+              required
+            />
+          )}
           <input
-            type="text"
-            placeholder="Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="p-2 border rounded"
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
-        )}
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="p-2 border rounded"
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="p-2 border rounded"
-          required
-        />
-        <button
-          type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
-          disabled={loading}
-        >
-          {loading ? "Processing..." : isLogin ? "Login" : "Register"}
-        </button>
-      </form>
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+          <button
+            type="submit"
+            className="bg-yellow-500 text-white px-6 py-3 rounded-lg shadow-md text-lg font-medium 
+          hover:bg-yellow-600 transition duration-300 disabled:opacity-50"
+            disabled={loading}
+          >
+            {loading ? "Processing..." : isLogin ? "Login" : "Register"}
+          </button>
+        </form>
 
-      {error && <p className="text-red-500 mt-2">{error}</p>}
+        {error && <p className="text-red-500 mt-3">{error}</p>}
+      </div>
     </div>
   );
 };
 
 export default Login;
-

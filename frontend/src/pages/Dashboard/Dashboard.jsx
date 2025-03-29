@@ -44,42 +44,45 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="p-4">
-      <h2 className="text-3xl font-bold mb-4">Disaster Reports</h2>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-yellow-50 to-white p-6">
+      <h2 className="text-4xl font-extrabold text-yellow-700 text-center mb-6">Disaster Reports</h2>
 
       <InfiniteScroll
         dataLength={reports.length}
         next={() => setPage((prev) => prev + 1)}
         hasMore={hasMore}
-        loader={<p>Loading more reports...</p>}
+        loader={<p className="text-center text-blue-500">Loading more reports...</p>}
       >
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {reports.map((report, index) => {
-            const imageUrl = report.fields?.file?.preview?.url
+            const imageUrl = report.fields?.file?.preview?.url;
 
             return (
-              <div key={`${report.id}-${index}`} className="p-4 border rounded shadow">
+              <div 
+                key={`${report.id}-${index}`} 
+                className="p-4 bg-white border border-yellow-300 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
+              >
                 <img
                   src={imageUrl}
                   alt={report.fields?.title || "Disaster Image"}
-                  className="w-full h-48 object-cover rounded"
+                  className="w-full h-48 object-cover rounded-lg"
                   onError={(e) => {
                     e.target.onerror = null;
-                   // Placeholder if image fails
+                    e.target.src = "https://via.placeholder.com/300x200?text=No+Image"; 
                   }}
                 />
 
-                <h3 className="text-xl font-semibold mt-2">
+                <h3 className="text-xl font-bold text-blue-800 mt-3">
                   {report.fields?.title || "No Title"}
                 </h3>
 
-                <p className="text-gray-600">
+                <p className="text-gray-600 mt-1">
                   <strong>Date & Time:</strong> {formatDateTime(report.fields?.date?.created)}
                 </p>
 
                 <Link
                   to={`/report/${report.id}`}
-                  className="mt-2 inline-block text-blue-500 hover:underline"
+                  className="mt-3 inline-block bg-yellow-500 text-white px-4 py-2 rounded-lg shadow hover:bg-yellow-600 transition duration-300"
                 >
                   Read more
                 </Link>
